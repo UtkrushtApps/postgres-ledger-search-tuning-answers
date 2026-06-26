@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: utkrusht_pg_ledger
+    environment:
+      POSTGRES_USER: assessment_user
+      POSTGRES_PASSWORD: assessment_password
+      POSTGRES_DB: fintech_ledger
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - /root/task/data/postgres:/var/lib/postgresql/data
+      - /root/task/init_database.sql:/docker-entrypoint-initdb.d/01_init_database.sql:ro
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_preload_libraries=pg_stat_statements"
+      - "-c"
+      - "pg_stat_statements.track=all"
+      - "-c"
+      - "track_io_timing=on"
+      - "-c"
+      - "work_mem=4MB"
+      - "-c"
+      - "max_connections=100"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U assessment_user -d fintech_ledger"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
